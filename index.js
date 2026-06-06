@@ -10,6 +10,7 @@ const {checkAuth} = require("./middlewares/auth");
 const userRouter = require("./routes/user")
 const vendorRouter = require("./routes/vendor");
 const apiRouter = require("./routes/api");
+const adminRouter = require("./routes/admin");
 
 connectMongoDB(process.env.MONGODB_URL);
 
@@ -23,6 +24,7 @@ app.set("views", Path.resolve("./views"));
 
 app.use("/user", userRouter);
 app.use("/vendor", vendorRouter);
+app.use("/admin", adminRouter);
 
 app.use("/api", apiRouter);
 

@@ -21,12 +21,15 @@ apiRouter.get("/user", (req,res) => {
 
 
 apiRouter.get("/vendor/me", async (req,res) => {
-    const user = req.user;
     if(!req.user){
       return res.redirect("/user/login");
     }
+    const user = await User.findById(req.user._id);
     console.log("User: ",user);
-    const vendor = await Vendor.findById(user.vendorId);
+    let vendor = null;
+    if(user.vendorId){
+      vendor = await Vendor.findById(user.vendorId);
+    }
     console.log("Vendor", vendor);
     if(!vendor){
       return res.json({
@@ -41,6 +44,14 @@ apiRouter.get("/vendor/me", async (req,res) => {
       username: user.username,
     });
 });
+
+apiRouter.get("/vendor/verification", async (req,res) => {
+  const vendor = await Vendor.findById(req.user._id);
+    return res.json({
+      status: vendor.status,
+    })
+  }
+)
 
 apiRouter.get("/mentors", async (req,res) => {
    

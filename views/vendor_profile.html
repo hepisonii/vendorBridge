@@ -309,19 +309,26 @@
   let isExistingVendor = false;
 
   async function loadVendor() {
-    try {
-      const res = await fetch('/api/vendor/me');
-      let data = {};
-      if (res.ok) data = await res.json();
+  try {
+    const res = await fetch('/api/vendor/me', {
+      credentials: "include"
+    });
 
-      // vendor field: true = existing, false = new
-      isExistingVendor = data.vendor === true;
-      setupUI(data);
-    } catch (e) {
-      isExistingVendor = false;
-      setupUI({});
-    }
+    if (!res.ok) throw new Error("Failed");
+
+    const data = await res.json();
+    const vendor = data.vendor;
+
+    isExistingVendor = !!vendor;
+
+    setupUI(vendor || {});
+
+  } catch (e) {
+    console.error(e);
+    isExistingVendor = false;
+    setupUI({});
   }
+}
 
   function setupUI(data) {
     document.getElementById('loadingState').style.display = 'none';

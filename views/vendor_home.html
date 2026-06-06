@@ -296,8 +296,7 @@
 
       const vendorLink = document.getElementById('sb-vendor-link');
       const vendorLabel = document.getElementById('sb-vendor-label');
-      console.log("Data: ",data.vendor);
-      if (data.vendor === true) {
+      if (!!data.vendor) {
         vendorLabel.textContent = 'Edit Vendor Profile';
       } else {
         vendorLabel.textContent = 'Create Vendor Profile';

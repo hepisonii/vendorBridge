@@ -64,7 +64,7 @@ const handlePatchVendorProfile = async (req, res) => {
     // 🔍 1. Get user
     const user = await User.findById(userId);
 
-    if (!user || user.role !== "VENDOR") {
+    if (!user || user.role !== "vendor") {
       return res.status(403).json({
         message: "Only vendors can update profile"
       });

@@ -38,7 +38,33 @@ const limiter = rateLimit({
     legacyHeaders: false,
 })
 
+const checkRole = (...allowedRoles) => {
+  return (req, res, next) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          message: "Unauthorized"
+        });
+      }
+
+      if (!allowedRoles.includes(req.user.role)) {
+        return res.status(403).json({
+          message: "Forbidden: Access denied"
+        });
+      }
+
+      next();
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: "Server error"
+      });
+    }
+  };
+};
+
 module.exports = {
     checkAuth,
     limiter,
+    checkRole
 }
