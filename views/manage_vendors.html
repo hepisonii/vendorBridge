@@ -452,7 +452,7 @@
   // ── FETCH ADMIN USER ──
   async function loadUser() {
     try {
-      const res = await fetch('/api/admin/me');
+      const res = await fetch('/api/user');
       const data = await res.json();
       document.getElementById('sb-fullname').textContent = data.fullname || data.username || 'Admin';
     } catch (err) {
@@ -616,16 +616,20 @@
 
   // ── LOAD VENDORS ──
   async function loadVendors() {
-    // DUMMY: comment out below line and uncomment API fetch when ready
-    allVendors = DUMMY_VENDORS;
+  console.log("HCECE", activeFilter);
+  const res = await fetch(`/api/vendor?status=${activeFilter}`, {
+    credentials: "include"
+  });
 
-    // API fetch — uncomment below and remove DUMMY line above when ready:
-    // allVendors = await fetchVendors('all');
+  const data = await res.json();
 
-    updateCounts(allVendors);
-    renderCards(allVendors);
-  }
+  allVendors = data.vendors;
 
+  console.log("All Vendors: ", allVendors);
+
+  updateCounts(allVendors);
+  renderCards(allVendors);
+}
   loadUser();
   loadVendors();
 </script>
