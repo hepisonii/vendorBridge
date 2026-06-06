@@ -12,11 +12,11 @@ const handlePostVendorProfile = async (req, res) => {
       contactNumber,
       category
     } = req.body;
-
+    console.log("Body: ",req.body)
     // 🔒 1. Only vendor role allowed
     const user = await User.findById(userId);
 
-    if (user.role !== "VENDOR") {
+    if (user.role !== "vendor") {
       return res.status(403).json({
         message: "Only vendors can create profile"
       });
@@ -41,6 +41,7 @@ const handlePostVendorProfile = async (req, res) => {
 
     // 🔗 4. Link to user
     user.vendorId = vendor._id;
+    req.user.vendorId = vendor._id
     await user.save();
 
     return res.status(201).json({

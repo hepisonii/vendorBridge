@@ -22,14 +22,23 @@ apiRouter.get("/user", (req,res) => {
 
 apiRouter.get("/vendor/me", async (req,res) => {
     const user = req.user;
-    const vendor = Vendor.findById(user.vendorId);
+    if(!req.user){
+      return res.redirect("/user/login");
+    }
+    console.log("User: ",user);
+    const vendor = await Vendor.findById(user.vendorId);
+    console.log("Vendor", vendor);
     if(!vendor){
       return res.json({
-        vendor: false,
+        vendor: null,
+        fullname: user.fullname,
+        username: user.username,
       })
     }
     return res.json({
-      vendor: true,
+      vendor,
+      fullname: user.fullname,
+      username: user.username,
     });
 });
 

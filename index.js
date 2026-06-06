@@ -26,6 +26,13 @@ app.use("/vendor", vendorRouter);
 
 app.use("/api", apiRouter);
 
+app.get("/", async (req,res) => {
+    const user = req.user;
+    if(user.role === "vendor"){
+        return res.redirect("/vendor");
+    }
+})
+
 app.listen(PORT, () => {
     console.log("Server Started");
 });

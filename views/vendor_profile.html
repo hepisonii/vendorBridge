@@ -265,14 +265,14 @@
             </div>
 
             <div class="field">
-              <label class="field-label" for="gstnumber">GST Number</label>
-              <input type="text" id="gstnumber" name="gstnumber" placeholder="22AAAAA0000A1Z5" maxlength="15" />
+              <label class="field-label" for="gstNumber">GST Number</label>
+              <input type="text" id="gstNumber" name="gstNumber" placeholder="22AAAAA0000A1Z5" maxlength="15" />
               <span class="field-hint">15-digit GSTIN (optional)</span>
             </div>
 
             <div class="field">
-              <label class="field-label" for="contactnumber">Contact Number</label>
-              <input type="tel" id="contactnumber" name="contactnumber" placeholder="+91 98765 43210" required />
+              <label class="field-label" for="contactNumber">Contact Number</label>
+              <input type="tel" id="contactNumber" name="contactNumber" placeholder="+91 98765 43210" required />
             </div>
 
             <div class="field" style="grid-column: 1 / -1;">
@@ -343,8 +343,8 @@
       // Pre-fill existing values
       if (data.name)          { document.getElementById('name').value          = data.name;          updateSidebar('name', data.name); }
       if (data.email)         { document.getElementById('email').value         = data.email;         updateSidebar('email', data.email); }
-      if (data.gstnumber)     { document.getElementById('gstnumber').value     = data.gstnumber;     updateSidebar('gst', data.gstnumber); }
-      if (data.contactnumber) { document.getElementById('contactnumber').value = data.contactnumber; updateSidebar('phone', data.contactnumber); }
+      if (data.gstNumber)     { document.getElementById('gstNumber').value     = data.gstnumber;     updateSidebar('gst', data.gstNumber); }
+      if (data.contactNumber) { document.getElementById('contactNumber').value = data.contactnumber; updateSidebar('phone', data.contactNumber); }
       if (data.category)      { document.getElementById('category').value      = data.category;      updateSidebar('category', data.category); }
     } else {
       // POST mode — new vendor
@@ -371,10 +371,10 @@
   document.getElementById('email').addEventListener('input', e => {
     document.getElementById('sidebarEmail').textContent = e.target.value.trim() || '—';
   });
-  document.getElementById('contactnumber').addEventListener('input', e => {
+  document.getElementById('contactNumber').addEventListener('input', e => {
     document.getElementById('sidebarPhone').textContent = e.target.value.trim() || '—';
   });
-  document.getElementById('gstnumber').addEventListener('input', e => {
+  document.getElementById('gstNumber').addEventListener('input', e => {
     document.getElementById('sidebarGST').textContent = e.target.value.trim() || '—';
   });
   document.getElementById('category').addEventListener('change', e => {
@@ -392,12 +392,12 @@
     const body = {
       name:          document.getElementById('name').value.trim(),
       email:         document.getElementById('email').value.trim(),
-      gstnumber:     document.getElementById('gstnumber').value.trim(),
-      contactnumber: document.getElementById('contactnumber').value.trim(),
+      gstNumber:     document.getElementById('gstNumber').value.trim(),
+      contactNumber: document.getElementById('contactNumber').value.trim(),
       category:      document.getElementById('category').value,
     };
 
-    if (!body.name || !body.email || !body.contactnumber || !body.category) {
+    if (!body.name || !body.email || !body.contactNumber || !body.category) {
       flash.className    = 'flash-msg error';
       flash.textContent  = 'Please fill in all required fields.';
       flash.style.display = 'block';
@@ -410,7 +410,7 @@
     try {
       // KEY LOGIC: PATCH if vendor=true, POST if vendor=false
       const method   = isExistingVendor ? 'PATCH' : 'POST';
-      const endpoint = isExistingVendor ? '/api/vendor/me' : '/api/vendor/register';
+      const endpoint = '/vendor/profile';
 
       const res = await fetch(endpoint, {
         method,
