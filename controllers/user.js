@@ -16,9 +16,9 @@ const handlePostUserSignup = async (req, res) => {
     const { fullname, email, password, role, otp } = req.body;
 
     // 🚫 1. Block direct ADMIN signup
-    if (role === "ADMIN") {
+    if (role === "admin" || "officer" || "manager") {
       return res.status(403).json({
-        message: "Admin cannot signup directly"
+        message: "Staff cannot signup directly"
       });
     }
 

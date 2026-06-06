@@ -15,18 +15,23 @@ apiRouter.get("/user", (req,res) => {
 })
 
 apiRouter.get("/vendor",async (req,res) => {
-  const status = req.query.status;
-  let vendor = null;
-  if(status == "all"){
-    vendor = await Vendor.find({});
-  }
-  else{
-   vendor = await Vendor.find({status});
-  }
-  return res.status(200).json({
-    vendor
-  })
-})
+  try {
+      const { status } = req.query;
+      if(status === "all"){
+        const vendors = await Vendor.find({}).sort({createdAt: -1});
+        return res.json({vendors});
+      }
+      const filter = {};
+      if (status) filter.status = status;
+  
+      const vendors = await Vendor.find(filter).sort({ createdAt: -1 });
+      console.log("Vendors: ",vendors);
+      res.json({ vendors });
+  
+    } catch (err) {
+      res.status(500).json({ message: "Error fetching vendors" });
+    }
+});
 
 
 apiRouter.get("/vendor/me", async (req,res) => {

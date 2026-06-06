@@ -4,8 +4,12 @@ const Path = require("path");
 
 const {
     handlePostVendorProfile,
-    handlePatchVendorProfile
+    handlePatchVendorProfile,
+    getAvailableRFQs,
+    submitBid,
+    getMyBids,
 } = require("../controllers/vendor");
+const { checkRole } = require("../middlewares/auth");
 
 
 vendorRouter.get("/", (req,res) => {
@@ -17,5 +21,11 @@ vendorRouter.get("/profile", (req,res) => {
 
 vendorRouter.post("/profile", handlePostVendorProfile);
 vendorRouter.patch("/profile", handlePatchVendorProfile);
+
+vendorRouter.get("/rfqs", getAvailableRFQs);
+
+vendorRouter.post("/bid", submitBid);
+
+vendorRouter.get("/bids", getMyBids);
 
 module.exports = vendorRouter;

@@ -3,19 +3,7 @@ const User = require("../../models/user");
 const Vendor = require("../../models/vendor");
 
 const getAllVendors = async (req, res) => {
-  try {
-    const { status } = req.query;
-
-    const filter = {};
-    if (status) filter.status = status;
-
-    const vendors = await Vendor.find(filter).sort({ createdAt: -1 });
-
-    res.json({ vendors });
-
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching vendors" });
-  }
+  return res.sendFile(require("path").resolve(__dirname, "../../views/manage_vendors.html"))
 };
 
 const approveVendor = async (req, res) => {
@@ -26,7 +14,7 @@ const approveVendor = async (req, res) => {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    vendor.status = "approved";
+    vendor.status = "APPROVED";
     vendor.approvedBy = req.user._id;
     vendor.approvedAt = new Date();
 
@@ -49,7 +37,7 @@ const rejectVendor = async (req, res) => {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    vendor.status = "rejected";
+    vendor.status = "REJECTED";
     vendor.rejectionReason = reason || "Not specified";
 
     await vendor.save();
@@ -69,7 +57,7 @@ const blockVendor = async (req, res) => {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    vendor.status = "blocked";
+    vendor.status = "BLOCKED";
 
     await vendor.save();
 
