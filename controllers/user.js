@@ -16,7 +16,7 @@ const handlePostUserSignup = async (req, res) => {
     const { fullname, email, password, role, otp } = req.body;
 
     // 🚫 1. Block direct ADMIN signup
-    if (role === "admin" || "officer" || "manager") {
+    if (role === "admin") {
       return res.status(403).json({
         message: "Staff cannot signup directly"
       });
@@ -150,8 +150,7 @@ const handlePostUserLogin = async (req, res) => {
     // 🕒 6. Update last login
     user.lastLogin = new Date();
     await user.save();
-
-    return res.status(200).redirect("/vendor");
+    return res.status(200).redirect(`/${user.role}`);
 
   } catch (error) {
     console.error(error);

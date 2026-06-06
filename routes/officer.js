@@ -13,9 +13,16 @@ const {
   generatePO
 } = require("../controllers/officer")
 /* ── Dashboard ── */
+router.get("/", (req,res) => {
+    return res.sendFile(require("path").resolve(__dirname, "../views/officer_home.html"));
+})
+
 router.get("/dashboard", getOfficerDashboard);
 
 /* ── RFQ ── */
+router.get("/create/rfqs", (req,res) => {
+    return res.sendFile(require("path").resolve(__dirname, "../views/vendor_bids.html"));
+})
 router.post("/rfq", createRFQ);
 router.get("/rfq", getMyRFQs);
 router.get("/rfq/:id", getRFQDetails);
