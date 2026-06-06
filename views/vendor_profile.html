@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Skill Swap — Profile</title>
+  <title>VendoBridge — Vendor Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -56,7 +56,7 @@
     /* LAYOUT */
     .page-wrap {
       max-width: 860px; margin: 0 auto;
-      display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;
+      display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
     }
 
     /* SIDEBAR */
@@ -64,38 +64,23 @@
       background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
       overflow: hidden; position: sticky; top: 32px; animation: fadeUp 0.5s ease both;
     }
-    .sidebar-banner {
-      height: 80px;
-      background: linear-gradient(135deg, rgba(110,168,200,0.18), rgba(100,120,200,0.1));
-      border-bottom: 1px solid var(--border);
-    }
-    .sidebar-body { padding: 0 24px 28px; margin-top: -36px; }
-    .avatar-wrap {
-      position: relative; width: 72px; margin-bottom: 14px; cursor: pointer;
-    }
-    .avatar-wrap:hover .avatar-overlay { opacity: 1; }
-    .avatar-img {
-      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
-      border: 3px solid var(--panel); box-shadow: 0 0 0 2px #6ea8c8; display: block;
-    }
-    .avatar-overlay {
-      position: absolute; inset: 0; border-radius: 50%;
-      background: rgba(0,0,0,0.55);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.2s; pointer-events: none;
-    }
-    .avatar-overlay svg { width: 20px; height: 20px; color: #fff; }
-    .role-badge {
-      position: absolute; bottom: 2px; right: -4px;
-      padding: 3px 8px; border-radius: 20px;
-      font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
-      background: rgba(110,168,200,0.18); color: #6ea8c8; border: 1px solid rgba(110,168,200,0.25);
-    }
-    .profile-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .profile-handle { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
-    .meta-list { display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-body { padding: 24px; }
+
+    .profile-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .profile-sub  { font-size: 0.8rem; color: var(--muted); margin-bottom: 18px; }
+
+    .meta-list { display: flex; flex-direction: column; gap: 12px; }
     .meta-item { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--muted-light); }
     .meta-item svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+      margin-top: 18px;
+    }
+    .status-pill.active  { background: rgba(110,200,160,0.1); color: #6ec8a0; border: 1px solid rgba(110,200,160,0.2); }
+    .status-pill.pending { background: rgba(200,169,110,0.1); color: var(--accent); border: 1px solid rgba(200,169,110,0.2); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
     /* MAIN CARD */
     .main-card {
@@ -104,22 +89,22 @@
     }
     .main-card::before {
       content: ''; display: block; height: 2px;
-      background: linear-gradient(90deg, transparent, #6ea8c8, transparent);
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
     }
     .card-header {
       padding: 28px 32px 22px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
     }
     .card-header-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--text); }
-    .card-header-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; font-weight: 300; }
-    .edit-btn {
-      display: flex; align-items: center; gap: 6px; padding: 8px 16px;
-      background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
-      font-size: 0.78rem; font-family: 'DM Sans', sans-serif; color: var(--accent);
-      cursor: pointer; transition: border-color 0.2s, background 0.2s; font-weight: 500;
+    .card-header-sub   { font-size: 0.78rem; color: var(--muted); margin-top: 4px; font-weight: 300; }
+
+    .method-badge {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+      padding: 5px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 600;
+      font-family: 'DM Sans', sans-serif; letter-spacing: 0.06em;
     }
-    .edit-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
-    .edit-btn svg { width: 13px; height: 13px; }
+    .method-badge.patch { background: rgba(110,168,200,0.1); color: #6ea8c8; border: 1px solid rgba(110,168,200,0.2); }
+    .method-badge.post  { background: rgba(200,169,110,0.1); color: var(--accent); border: 1px solid rgba(200,169,110,0.2); }
+
     .card-body { padding: 28px 32px 32px; }
 
     /* FLASH */
@@ -128,7 +113,20 @@
       font-size: 0.85rem; display: none;
     }
     .flash-msg.success { background: rgba(110,200,160,0.1); border: 1px solid rgba(110,200,160,0.2); color: var(--success); display: block; }
-    .flash-msg.error { background: rgba(224,112,112,0.08); border: 1px solid rgba(224,112,112,0.2); color: var(--error); display: block; }
+    .flash-msg.error   { background: rgba(224,112,112,0.08); border: 1px solid rgba(224,112,112,0.2); color: var(--error); display: block; }
+
+    /* LOADING */
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 60px 32px; gap: 16px;
+    }
+    .spinner {
+      width: 36px; height: 36px; border: 2px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text { font-size: 0.85rem; color: var(--muted); }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* FORM */
     .form-section-title {
@@ -137,19 +135,12 @@
     }
     .fields-grid { display: grid; gap: 16px; margin-bottom: 22px; }
     .fields-grid.cols-2 { grid-template-columns: 1fr 1fr; }
-    .fields-grid.cols-1 { grid-template-columns: 1fr; }
     .field { display: flex; flex-direction: column; gap: 6px; }
     label.field-label {
       font-size: 0.7rem; font-weight: 500; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.08em;
     }
-    .field-value {
-      font-size: 0.9rem; color: var(--text); padding: 11px 14px;
-      background: var(--panel-deep); border: 1px solid var(--border);
-      border-radius: 10px; font-weight: 400; letter-spacing: 0.01em;
-    }
-    .field-value.muted { color: var(--muted-light); }
-    input, select, textarea {
+    input, select {
       background: var(--input-bg); border: 1px solid var(--input-border);
       border-radius: 10px; padding: 12px 14px; font-size: 0.9rem;
       font-family: 'DM Sans', sans-serif; color: var(--text); outline: none;
@@ -161,47 +152,21 @@
       box-shadow: 0 0 0 3px var(--accent-glow);
     }
     select option { background: var(--input-bg); color: var(--text); }
-
-    /* Avatar upload preview area (edit mode) */
-    .avatar-upload-row {
-      display: none; align-items: center; gap: 16px;
-      padding: 14px; background: var(--input-bg); border: 1px dashed var(--input-border);
-      border-radius: 12px; margin-bottom: 4px;
-    }
-    .avatar-upload-row.visible { display: flex; }
-    .avatar-upload-preview {
-      width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
-      border: 2px solid var(--border); flex-shrink: 0;
-    }
-    .avatar-upload-info { flex: 1; }
-    .avatar-upload-info p { font-size: 0.78rem; color: var(--muted-light); line-height: 1.5; }
-    .avatar-upload-btn {
-      display: inline-block; margin-top: 6px; padding: 5px 12px;
-      background: var(--accent-soft); border: 1px solid rgba(200,169,110,0.25);
-      border-radius: 7px; font-size: 0.75rem; color: var(--accent);
-      cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500;
-      transition: background 0.2s;
-    }
-    .avatar-upload-btn:hover { background: rgba(200,169,110,0.15); }
+    .field-hint { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
 
     .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
-    .save-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
-    .btn-cancel {
-      padding: 11px 22px; background: none; border: 1px solid var(--border); border-radius: 11px;
-      font-size: 0.85rem; font-family: 'DM Sans', sans-serif; color: var(--muted);
-      cursor: pointer; font-weight: 500; transition: border-color 0.2s, color 0.2s; display: none;
-    }
-    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+    .save-row { display: flex; justify-content: flex-end; }
     .btn-save {
-      padding: 11px 28px; background: var(--accent); color: #0d0f14; border: none;
+      padding: 12px 32px; background: var(--accent); color: #0d0f14; border: none;
       border-radius: 11px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
       font-weight: 600; cursor: pointer; letter-spacing: 0.04em;
       transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-      position: relative; overflow: hidden; display: none;
+      position: relative; overflow: hidden;
     }
     .btn-save::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); }
     .btn-save:hover { opacity: 0.9; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
     .btn-save:active { transform: scale(0.985); }
+    .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -220,9 +185,10 @@
 <nav class="nav">
   <a href="/" class="brand">
     <div class="brand-icon">
+      <!-- Original logo from your code -->
       <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8.5v7L12 19.5 5 15.5v-7l7-4.32z"/></svg>
     </div>
-    <span class="brand-name">Skill Swap</span>
+    <span class="brand-name">VendoBridge</span>
   </a>
   <a href="/dashboard" class="nav-btn">Dashboard</a>
 </nav>
@@ -231,27 +197,11 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar-card">
-    <div class="sidebar-banner"></div>
     <div class="sidebar-body">
-      <div class="avatar-wrap" id="avatarWrap" onclick="isEditing && triggerFileInput()">
-        <img class="avatar-img" id="sidebarAvatar" src="" alt="Profile Photo" />
-        <div class="avatar-overlay" id="avatarOverlay" style="display:none">
-          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-            <circle cx="12" cy="13" r="4"/>
-          </svg>
-        </div>
-        <span class="role-badge" id="roleBadge">Learner</span>
-      </div>
-      <p class="profile-name" id="sidebarName">—</p>
-      <p class="profile-handle" id="sidebarHandle">@—</p>
+      <p class="profile-name" id="sidebarName">Your Business</p>
+      <p class="profile-sub"  id="sidebarCategory">No category set</p>
+
       <div class="meta-list">
-        <div class="meta-item">
-          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span id="sidebarAgGender">—</span>
-        </div>
         <div class="meta-item">
           <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
@@ -259,6 +209,24 @@
           </svg>
           <span id="sidebarEmail">—</span>
         </div>
+        <div class="meta-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.07 6.07l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+          <span id="sidebarPhone">—</span>
+        </div>
+        <div class="meta-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+          </svg>
+          <span id="sidebarGST">—</span>
+        </div>
+      </div>
+
+      <div class="status-pill pending" id="statusPill">
+        <span class="status-dot"></span>
+        <span id="statusText">Not Registered</span>
       </div>
     </div>
   </aside>
@@ -266,226 +234,226 @@
   <!-- MAIN CARD -->
   <main class="main-card">
     <div class="card-header">
-      <div>
-        <p class="card-header-title" id="cardTitle">Your Profile</p>
-        <p class="card-header-sub" id="cardSub">View and manage your account details</p>
-      </div>
-      <button class="edit-btn" id="editToggleBtn" type="button" onclick="toggleEdit()">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-        Edit Profile
-      </button>
+      <p class="card-header-title" id="cardTitle">Vendor Profile</p>
+      <p class="card-header-sub"   id="cardSub">Loading your vendor information…</p>
+      <div class="method-badge" id="methodBadge" style="display:none"></div>
     </div>
 
     <div class="card-body">
+      <!-- Loading -->
+      <div class="loading-state" id="loadingState">
+        <div class="spinner"></div>
+        <p class="loading-text">Fetching vendor data…</p>
+      </div>
 
-      <!-- JS flash -->
-      <div id="jsFlash" class="flash-msg"></div>
+      <!-- Form -->
+      <div id="formWrapper" style="display:none">
+        <div id="jsFlash" class="flash-msg"></div>
 
-      <form id="profileForm" novalidate>
+        <form id="vendorForm" novalidate>
+          <p class="form-section-title">Business Details</p>
+          <div class="fields-grid cols-2">
 
-        <!-- Profile Image (edit mode only) -->
-        <div class="avatar-upload-row" id="avatarUploadRow">
-          <img class="avatar-upload-preview" id="uploadPreview" src="" alt="Preview" />
-          <div class="avatar-upload-info">
-            <p>Change your profile photo</p>
-            <label class="avatar-upload-btn" for="profileImage">Choose image</label>
-            <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none" onchange="previewImage(this)" />
-          </div>
-        </div>
+            <div class="field">
+              <label class="field-label" for="name">Business / Vendor Name</label>
+              <input type="text" id="name" name="name" placeholder="e.g. Sharma Traders" required />
+            </div>
 
-        <!-- Account Info -->
-        <p class="form-section-title">Account Info</p>
-        <div class="fields-grid cols-2">
+            <div class="field">
+              <label class="field-label" for="email">Email Address</label>
+              <input type="email" id="email" name="email" placeholder="vendor@example.com" required />
+            </div>
 
-          <div class="field">
-            <label class="field-label" for="fullname">Full Name</label>
-            <div class="field-value view-mode" id="view-fullname">—</div>
-            <input type="text" id="fullname" name="fullname" class="edit-mode" style="display:none" placeholder="Your full name" />
-          </div>
+            <div class="field">
+              <label class="field-label" for="gstnumber">GST Number</label>
+              <input type="text" id="gstnumber" name="gstnumber" placeholder="22AAAAA0000A1Z5" maxlength="15" />
+              <span class="field-hint">15-digit GSTIN (optional)</span>
+            </div>
 
-          <div class="field">
-            <label class="field-label" for="username">Username</label>
-            <div class="field-value muted view-mode" id="view-username">—</div>
-            <input type="text" id="username" name="username" class="edit-mode" style="display:none" placeholder="username" />
-          </div>
+            <div class="field">
+              <label class="field-label" for="contactnumber">Contact Number</label>
+              <input type="tel" id="contactnumber" name="contactnumber" placeholder="+91 98765 43210" required />
+            </div>
 
-          <div class="field">
-            <label class="field-label" for="email">Email</label>
-            <div class="field-value muted view-mode" id="view-email">—</div>
-            <input type="email" id="email" name="email" class="edit-mode" style="display:none" placeholder="you@example.com" />
-          </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label class="field-label" for="category">Vendor Category</label>
+              <select id="category" name="category" required>
+                <option value="" disabled selected>Select your business category</option>
+                <option value="Food & Beverages">🍽️ Food & Beverages</option>
+                <option value="Electronics & Technology">💻 Electronics & Technology</option>
+                <option value="Clothing & Apparel">👗 Clothing & Apparel</option>
+                <option value="Health & Pharmaceuticals">💊 Health & Pharmaceuticals</option>
+                <option value="Construction & Real Estate">🏗️ Construction & Real Estate</option>
+                <option value="Agriculture & Farm Produce">🌾 Agriculture & Farm Produce</option>
+                <option value="Logistics & Transportation">🚚 Logistics & Transportation</option>
+                <option value="Retail & General Trade">🛒 Retail & General Trade</option>
+                <option value="Beauty & Personal Care">💄 Beauty & Personal Care</option>
+                <option value="Education & Training">📚 Education & Training</option>
+              </select>
+            </div>
 
-          <div class="field">
-            <label class="field-label" for="age">Age</label>
-            <div class="field-value view-mode" id="view-age">—</div>
-            <input type="number" id="age" name="age" class="edit-mode" style="display:none" min="13" max="100" placeholder="Age" />
-          </div>
-
-          <div class="field" style="grid-column: 1 / -1;">
-            <label class="field-label" for="gender">Gender</label>
-            <div class="field-value view-mode" id="view-gender">—</div>
-            <select id="gender" name="gender" class="edit-mode" style="display:none">
-              <option value="" disabled selected>Select gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Non-binary">Non-binary</option>
-              <option value="Prefer not to say">Prefer not to say</option>
-            </select>
           </div>
 
-        </div>
-
-        <div class="save-row">
-          <button type="button" class="btn-cancel" id="cancelBtn" onclick="cancelEdit()">Cancel</button>
-          <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
-        </div>
-      </form>
+          <div class="section-divider"></div>
+          <div class="save-row">
+            <button type="submit" class="btn-save" id="saveBtn">Register as Vendor</button>
+          </div>
+        </form>
+      </div>
     </div>
   </main>
 
 </div>
 
 <script>
-  let isEditing = false;
+  let isExistingVendor = false;
 
-  async function loadUser() {
+  async function loadVendor() {
     try {
-      const res = await fetch('/api/user');
-      if (!res.ok) return;
-      const u = await res.json();
-      // Sidebar
-      const avatarSrc = u.profileImageURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.fullname || 'User')}&background=191c25&color=6ea8c8&size=72`;
-      document.getElementById('sidebarAvatar').src = avatarSrc;
-      document.getElementById('uploadPreview').src  = avatarSrc;
-      if (u.fullname)  document.getElementById('sidebarName').textContent      = u.fullname;
-      if (u.username)  document.getElementById('sidebarHandle').textContent    = '@' + u.username;
-      if (u.email)     document.getElementById('sidebarEmail').textContent     = u.email;
-      if (u.role)      document.getElementById('roleBadge').textContent        = u.role;
-      document.getElementById('sidebarAgGender').textContent =
-        (u.age || '') + (u.age && u.gender ? ' · ' : '') + (u.gender || '');
+      const res = await fetch('/api/vendor/me');
+      let data = {};
+      if (res.ok) data = await res.json();
 
-      // View mode divs
-      if (u.fullname)  document.getElementById('view-fullname').textContent  = u.fullname;
-      if (u.username)  document.getElementById('view-username').textContent  = '@' + u.username;
-      if (u.email)     document.getElementById('view-email').textContent     = u.email;
-      if (u.age)       document.getElementById('view-age').textContent       = u.age;
-      if (u.gender)    document.getElementById('view-gender').textContent    = u.gender;
-
-      // Input fields
-      if (u.fullname)  document.getElementById('fullname').value  = u.fullname;
-      if (u.username)  document.getElementById('username').value  = u.username;
-      if (u.email)     document.getElementById('email').value     = u.email;
-      if (u.age)       document.getElementById('age').value       = u.age;
-      if (u.gender)    document.getElementById('gender').value    = u.gender;
-
+      // vendor field: true = existing, false = new
+      isExistingVendor = data.vendor === true;
+      setupUI(data);
     } catch (e) {
-      console.error('Failed to load user from /api/user', e);
+      isExistingVendor = false;
+      setupUI({});
     }
   }
 
-  loadUser();
+  function setupUI(data) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('formWrapper').style.display  = 'block';
 
-  function toggleEdit() {
-    isEditing = !isEditing;
+    const methodBadge = document.getElementById('methodBadge');
+    methodBadge.style.display = 'inline-flex';
 
-    document.querySelectorAll('.view-mode').forEach(el => el.style.display = isEditing ? 'none' : '');
-    document.querySelectorAll('.edit-mode').forEach(el => el.style.display = isEditing ? '' : 'none');
+    if (isExistingVendor) {
+      // PATCH mode — vendor already exists
+      document.getElementById('cardTitle').textContent  = 'Update Vendor Profile';
+      document.getElementById('cardSub').textContent    = 'Update your registered vendor details below';
+      document.getElementById('saveBtn').textContent    = 'Save Changes';
+      methodBadge.textContent = 'PATCH · Updating existing record';
+      methodBadge.className   = 'method-badge patch';
+      document.getElementById('statusPill').className   = 'status-pill active';
+      document.getElementById('statusText').textContent = 'Registered Vendor';
 
-    document.getElementById('avatarUploadRow').classList.toggle('visible', isEditing);
-    document.getElementById('avatarOverlay').style.display = isEditing ? 'flex' : 'none';
-    document.getElementById('avatarWrap').style.cursor = isEditing ? 'pointer' : 'default';
-
-    const editBtn = document.getElementById('editToggleBtn');
-    document.getElementById('cardTitle').textContent = isEditing ? 'Edit Profile' : 'Your Profile';
-    document.getElementById('cardSub').textContent   = isEditing ? 'Update your account details below' : 'View and manage your account details';
-
-    editBtn.innerHTML = isEditing
-      ? `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Viewing`
-      : `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Profile`;
-
-    document.getElementById('saveBtn').style.display   = isEditing ? 'block' : 'none';
-    document.getElementById('cancelBtn').style.display = isEditing ? 'block' : 'none';
+      // Pre-fill existing values
+      if (data.name)          { document.getElementById('name').value          = data.name;          updateSidebar('name', data.name); }
+      if (data.email)         { document.getElementById('email').value         = data.email;         updateSidebar('email', data.email); }
+      if (data.gstnumber)     { document.getElementById('gstnumber').value     = data.gstnumber;     updateSidebar('gst', data.gstnumber); }
+      if (data.contactnumber) { document.getElementById('contactnumber').value = data.contactnumber; updateSidebar('phone', data.contactnumber); }
+      if (data.category)      { document.getElementById('category').value      = data.category;      updateSidebar('category', data.category); }
+    } else {
+      // POST mode — new vendor
+      document.getElementById('cardTitle').textContent = 'Register as Vendor';
+      document.getElementById('cardSub').textContent   = 'Fill in your details to register as a vendor on VendoBridge';
+      document.getElementById('saveBtn').textContent   = 'Register as Vendor';
+      methodBadge.textContent = 'POST · Creating new vendor record';
+      methodBadge.className   = 'method-badge post';
+    }
   }
 
-  function cancelEdit() { if (isEditing) toggleEdit(); }
-
-  function triggerFileInput() {
-    if (isEditing) document.getElementById('profileImage').click();
+  function updateSidebar(field, value) {
+    if (field === 'name')     document.getElementById('sidebarName').textContent     = value;
+    if (field === 'email')    document.getElementById('sidebarEmail').textContent    = value;
+    if (field === 'phone')    document.getElementById('sidebarPhone').textContent    = value;
+    if (field === 'gst')      document.getElementById('sidebarGST').textContent      = value;
+    if (field === 'category') document.getElementById('sidebarCategory').textContent = value;
   }
 
-  function previewImage(input) {
-    if (!input.files || !input.files[0]) return;
-    const url = URL.createObjectURL(input.files[0]);
-    document.getElementById('sidebarAvatar').src = url;
-    document.getElementById('uploadPreview').src  = url;
-  }
+  // Live sidebar preview as user types
+  document.getElementById('name').addEventListener('input', e => {
+    document.getElementById('sidebarName').textContent = e.target.value.trim() || 'Your Business';
+  });
+  document.getElementById('email').addEventListener('input', e => {
+    document.getElementById('sidebarEmail').textContent = e.target.value.trim() || '—';
+  });
+  document.getElementById('contactnumber').addEventListener('input', e => {
+    document.getElementById('sidebarPhone').textContent = e.target.value.trim() || '—';
+  });
+  document.getElementById('gstnumber').addEventListener('input', e => {
+    document.getElementById('sidebarGST').textContent = e.target.value.trim() || '—';
+  });
+  document.getElementById('category').addEventListener('change', e => {
+    document.getElementById('sidebarCategory').textContent = e.target.value || 'No category set';
+  });
 
-  document.getElementById('profileForm').addEventListener('submit', async function(e) {
+  document.getElementById('vendorForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const val = id => document.getElementById(id).value.trim();
-    const fullname = val('fullname');
-    const username = val('username');
-    const email    = val('email');
-    const age      = val('age');
-    const gender   = val('gender');
+    const flash   = document.getElementById('jsFlash');
+    const saveBtn = document.getElementById('saveBtn');
+    flash.className    = 'flash-msg';
+    flash.style.display = 'none';
 
-    const formData = new FormData();
-    formData.append('fullname', fullname);
-    formData.append('username', username);
-    formData.append('email', email);
-    formData.append('age', age);
-    formData.append('gender', gender);
+    const body = {
+      name:          document.getElementById('name').value.trim(),
+      email:         document.getElementById('email').value.trim(),
+      gstnumber:     document.getElementById('gstnumber').value.trim(),
+      contactnumber: document.getElementById('contactnumber').value.trim(),
+      category:      document.getElementById('category').value,
+    };
 
-    const imageInput = document.getElementById('profileImage');
-    if (imageInput.files && imageInput.files[0]) {
-      formData.append('profileImage', imageInput.files[0]);
+    if (!body.name || !body.email || !body.contactnumber || !body.category) {
+      flash.className    = 'flash-msg error';
+      flash.textContent  = 'Please fill in all required fields.';
+      flash.style.display = 'block';
+      return;
     }
 
-    const flash = document.getElementById('jsFlash');
+    saveBtn.disabled    = true;
+    saveBtn.textContent = isExistingVendor ? 'Saving…' : 'Registering…';
 
     try {
-      const res = await fetch('/user/profile', {
-        method: 'PATCH',
-        body: formData
+      // KEY LOGIC: PATCH if vendor=true, POST if vendor=false
+      const method   = isExistingVendor ? 'PATCH' : 'POST';
+      const endpoint = isExistingVendor ? '/api/vendor/me' : '/api/vendor/register';
+
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
-        if (fullname) {
-          document.getElementById('sidebarName').textContent  = fullname;
-          document.getElementById('view-fullname').textContent = fullname;
-        }
-        if (username) {
-          document.getElementById('sidebarHandle').textContent = '@' + username;
-          document.getElementById('view-username').textContent  = '@' + username;
-        }
-        if (email) {
-          document.getElementById('sidebarEmail').textContent = email;
-          document.getElementById('view-email').textContent   = email;
-        }
-        if (age) document.getElementById('view-age').textContent = age;
-        if (gender) document.getElementById('view-gender').textContent = gender;
-        if (age || gender)
-          document.getElementById('sidebarAgGender').textContent = age + (age && gender ? ' · ' : '') + gender;
+        flash.className    = 'flash-msg success';
+        flash.textContent  = isExistingVendor
+          ? 'Vendor profile updated successfully!'
+          : 'Successfully registered as a vendor on VendoBridge!';
+        flash.style.display = 'block';
 
-        flash.className = 'flash-msg success';
-        flash.textContent = 'Profile updated successfully!';
-        cancelEdit();
+        if (!isExistingVendor) {
+          // Flip to PATCH mode after first successful POST
+          isExistingVendor = true;
+          document.getElementById('statusPill').className    = 'status-pill active';
+          document.getElementById('statusText').textContent  = 'Registered Vendor';
+          document.getElementById('saveBtn').textContent     = 'Save Changes';
+          document.getElementById('methodBadge').textContent = 'PATCH · Updating existing record';
+          document.getElementById('methodBadge').className   = 'method-badge patch';
+          document.getElementById('cardTitle').textContent   = 'Update Vendor Profile';
+          document.getElementById('cardSub').textContent     = 'Update your registered vendor details below';
+        }
       } else {
         const data = await res.json().catch(() => ({}));
-        flash.className = 'flash-msg error';
-        flash.textContent = data.message || 'Something went wrong. Please try again.';
+        flash.className    = 'flash-msg error';
+        flash.textContent  = data.message || 'Something went wrong. Please try again.';
+        flash.style.display = 'block';
       }
-
-      flash.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (err) {
-      flash.className = 'flash-msg error';
-      flash.textContent = 'Network error. Please try again.';
+      flash.className    = 'flash-msg error';
+      flash.textContent  = 'Network error. Please try again.';
+      flash.style.display = 'block';
+    } finally {
+      saveBtn.disabled    = false;
+      saveBtn.textContent = isExistingVendor ? 'Save Changes' : 'Register as Vendor';
+      flash.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   });
+
+  loadVendor();
 </script>
 </body>
 </html>
