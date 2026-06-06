@@ -2,7 +2,51 @@ const {Schema, model} = require("mongoose")
 const {createHmac, randomBytes} = require("crypto");
 const {setToken} = require("../services/auth")
 const userSchema = new Schema({
-    
+  fullname: {
+    type: String,
+    required: true,
+    trim: true
+  },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true
+  },
+
+  password: {
+    type: String,
+    required: true,
+    minlength: 6,
+    select: false
+  },
+
+  role: {
+    type: String,
+    enum: ["admin", "officer", "manager", "vendor"],
+    required: true
+  },
+
+  // 🔗 Link vendor users to vendor entity
+  vendorId: {
+    type: Schema.Types.ObjectId,
+    ref: "Vendor",
+    default: null
+  },
+
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+
+  // 🔐 For forgot password
+  resetPasswordToken: String,
+  resetPasswordExpire: Date,
+
+  // 🕒 Tracking
+  lastLogin: Date
+
 }, {timestamps: true});
 
 userSchema.pre("save", async function (){
@@ -28,6 +72,6 @@ userSchema.static("matchPassword",async function (username,password){
 
 })
 
-const User = model("user", userSchema);
+const User = model("User", userSchema);
 
 module.exports = User;

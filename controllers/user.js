@@ -1,5 +1,7 @@
 const express = require("express");
 const User = require("../models/user");
+const Vendor = require("../models/Vendor");
+const OTP = require("../models/OTP");
 const {cloudinary,upload} = require("../cloudConfig")
 const fs = require("fs");
 
@@ -8,41 +10,101 @@ async function handleGetUserSignUp(req,res){
     return res.render("signup");
 }
 
-async function handlePostUserSignUp(req,res){
-    const {fullname,username,password,age,gender, qualifications,role} = req.body;
-    const entry = await User.findOne({username});
-    if(entry){
-        return res.render("signup", {
-            error: "Username already exists"
-        })
+async function handlePostUserSignup(req, res){
+  try {
+    const { fullname, email, password, role, otp } = req.body;
+
+    // 🚫 1. Prevent ADMIN signup
+    if (role === "ADMIN") {
+      return res.status(403).json({
+        message: "Admin cannot signup directly"
+      });
     }
-    let imageUrl = null;
 
-if (req.file) {
-    const photo = await cloudinary.uploader.upload(req.file.path, {
-        folder: "interview-app",
-    });
-    fs.unlinkSync(req.file.path);
-    imageUrl = photo.secure_url;
-    profileImageId = photo.public_id;
-}
+    // 🔍 2. Check existing user
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists"
+      });
+    }
+
+    // 🔐 3. Hash password
+    let isApproved = false;
+    let vendorId = null;
+
+    // 🏢 4. Vendor flow
+    if (role === "VENDOR") {
+      const vendor = await Vendor.create({
+        name: fullname,
+        email,
+        status: "PENDING"
+      });
+
+      vendorId = vendor._id;
+      isApproved = false; // admin will approve later
+    }
+
+    // 🔐 5. Manager / Officer flow (OTP required)
+    if (["MANAGER", "PROCUREMENT_OFFICER"].includes(role)) {
+
+      if (!otp) {
+        return res.status(400).json({
+          message: "OTP required for this role"
+        });
+      }
+
+      const validOTP = await OTP.findOne({
+        email,
+        code: otp,
+        roleRequested: role,
+        isUsed: false,
+        expiresAt: { $gt: new Date() }
+      });
+
+      if (!validOTP) {
+        return res.status(400).json({
+          message: "Invalid or expired OTP"
+        });
+      }
+
+      // mark OTP used
+      validOTP.isUsed = true;
+      validOTP.usedAt = new Date();
+      await validOTP.save();
+
+      isApproved = true;
+    }
+
+    // 👤 6. Create user
     const user = await User.create({
-    
+      fullname,
+      email,
+      password,
+      role,
+      vendorId,
+      isApproved
     });
-    return res.redirect("/user/login");
-}
 
+    return res.redirect("/user/login");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
 
 async function handleGetUserLogin(req,res){
     return res.render("login");
 }
 
 async function handlePostUserLogin(req,res){
-    const {username,password} = req.body;
-    const token = await User.matchPassword(username,password)
+    const {email,password} = req.body;
+    const token = await User.matchPassword(email,password)
      if(!token){
         return res.render("login", {
-            error: "Invalid username or password"
+            error: "Invalid email or password"
         });
     }
     else{
@@ -132,7 +194,7 @@ if (req.body.email && req.body.email !== user.email) {
 
 module.exports = {
     handleGetUserSignUp,
-    handlePostUserSignUp,
+    handlePostUserSignup,
     handleGetUserLogin,
     handlePostUserLogin,
     handleGetUserLogout,
