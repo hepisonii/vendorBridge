@@ -1,7 +1,7 @@
 const express = require("express");
 const User = require("../models/user");
 const Vendor = require("../models/Vendor");
-const OTP = require("../models/OTP");
+const OTP = require("../models/inviteCode");
 const bcrypt = require("bcryptjs");
 const {cloudinary,upload} = require("../cloudConfig")
 const fs = require("fs");
@@ -236,10 +236,112 @@ if (req.body.email && req.body.email !== user.email) {
   }
 }
 
+const InviteCode = require("../models/InviteCode");
+
+const handlePostSignup = async (req, res) => {
+  try {
+    const { fullname, email, password, role, inviteCode, adminSecret } = req.body;
+    if (!fullname || !email || !password || !role) {
+    return res.status(400).json({
+    message: "All fields are required"
+    });
+  }
+    // 🔍 1. Check existing user
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists"
+      });
+    }
+
+    let isApproved = false;
+
+    // 🔐 2. ADMIN SIGNUP (secret key)
+    if (role === "admin") {
+      if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
+        return res.status(403).json({
+          message: "Invalid admin secret"
+        });
+      }
+      isApproved = true;
+    }
+
+    // 🔐 3. MANAGER / OFFICER SIGNUP (invite code)
+    else if (["manager", "officer"].includes(role)) {
+
+      if (!inviteCode) {
+        return res.status(400).json({
+          message: "Invite code required"
+        });
+      }
+
+      const invite = await InviteCode.findOneAndUpdate(
+        {
+          email,
+          code: inviteCode,
+          role,
+          isUsed: false,
+          expiresAt: { $gt: new Date() }
+        },
+        {
+          $set: { isUsed: true }
+        },
+        { new: true }
+      );
+
+      if (!invite) {
+        return res.status(400).json({
+          message: "Invalid or expired invite code"
+        });
+      }
+
+      isApproved = true;
+
+      // 🔗 link invite to user later
+    }
+
+    // ❌ 4. Block unknown roles
+    else {
+      return res.status(400).json({
+        message: "Invalid role"
+      });
+    }
+
+    // 👤 5. Create user
+    const user = await User.create({
+      fullname,
+      email,
+      password, // hashed in schema
+      role,
+      isApproved
+    });
+
+    // 🔗 6. Link invite → user (optional but 🔥)
+    if (inviteCode && ["manager", "procurement_officer"].includes(role)) {
+      await InviteCode.findOneAndUpdate(
+        { code: inviteCode },
+        { usedBy: user._id }
+      );
+    }
+
+    return res.status(201).json({
+      message: "Signup successful",
+      userId: user._id
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
 module.exports = {
     handleGetUserSignUp,
     handlePostUserSignup,
     handleGetUserLogin,
     handlePostUserLogin,
     handleGetUserLogout,
+    handlePostSignup
 }

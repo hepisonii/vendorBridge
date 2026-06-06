@@ -30,6 +30,9 @@ app.use("/api", apiRouter);
 
 app.get("/", async (req,res) => {
     const user = req.user;
+    if(!user){
+        return res.redirect("/user/login");
+    }
     if(user.role === "vendor"){
         return res.redirect("/vendor");
     }

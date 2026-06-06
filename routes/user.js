@@ -8,7 +8,8 @@ const {
     handlePostUserLogin,
     handleGetUserLogout,
     //handleGetUserSettings,
-    //handlePatchUserSettings
+    //handlePatchUserSettings,
+    handlePostSignup
 } = require("../controllers/user");
 const { limiter } = require("../middlewares/auth");
 
@@ -20,5 +21,5 @@ userRouter.post("/login",limiter, handlePostUserLogin);
 // userRouter.get("/settings", handleGetUserSettings);
 // userRouter.patch("/settings", handlePatchUserSettings);
 userRouter.get("/logout", handleGetUserLogout);
-
+userRouter.get("/signup/staff", handlePostSignup);
 module.exports = userRouter;
