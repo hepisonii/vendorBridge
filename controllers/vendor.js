@@ -128,8 +128,87 @@ const handlePatchVendorProfile = async (req, res) => {
   }
 };
 
+const RFQ = require("../models/RFQ");
+
+const getAvailableRFQs = async (req, res) => {
+  try {
+    const rfqs = await RFQ.find({ status: "open" })
+      .sort({ createdAt: -1 });
+
+    res.json({ rfqs });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching RFQs" });
+  }
+};
+
+const Bid = require("../models/Bid");
+
+const submitBid = async (req, res) => {
+  try {
+    const { rfqId, quotedPrice, message } = req.body;
+
+    // 🔍 Check RFQ exists
+    const rfq = await RFQ.findById(rfqId);
+    if (!rfq || rfq.status !== "open") {
+      return res.status(400).json({
+        message: "RFQ not available"
+      });
+    }
+
+    // 🔗 Get vendorId from logged-in user
+    const vendorId = req.user.vendorId;
+
+    if (!vendorId) {
+      return res.status(403).json({
+        message: "Vendor profile not found"
+      });
+    }
+
+    // 🚫 Prevent duplicate bid
+    const existingBid = await Bid.findOne({ rfqId, vendorId });
+    if (existingBid) {
+      return res.status(400).json({
+        message: "You already submitted a bid for this RFQ"
+      });
+    }
+
+    const bid = await Bid.create({
+      rfqId,
+      vendorId,
+      quotedPrice,
+      message
+    });
+
+    res.status(201).json({ bid });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error submitting bid" });
+  }
+};
+
+const getMyBids = async (req, res) => {
+  try {
+    const vendorId = req.user.vendorId;
+
+    const bids = await Bid.find({ vendorId })
+      .populate("rfqId")
+      .sort({ createdAt: -1 });
+
+    res.json({ bids });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching bids" });
+  }
+};
 
 module.exports = {
     handlePostVendorProfile,
-    handlePatchVendorProfile
+    handlePatchVendorProfile,
+    getAvailableRFQs,
+    submitBid,
+    getMyBids,
 };

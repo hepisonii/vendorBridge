@@ -21,5 +21,8 @@ userRouter.post("/login",limiter, handlePostUserLogin);
 // userRouter.get("/settings", handleGetUserSettings);
 // userRouter.patch("/settings", handlePatchUserSettings);
 userRouter.get("/logout", handleGetUserLogout);
-userRouter.get("/signup/staff", handlePostSignup);
+userRouter.get("/signup/staff", async (req,res) => {
+    return res.render("oma_signup.ejs");
+});
+userRouter.post("/signup/staff", handlePostSignup);
 module.exports = userRouter;
