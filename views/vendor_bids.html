@@ -404,10 +404,10 @@
   //    Request body: { rfqId: string, price: number, message: string }
   //    Expected response: 200 OK on success
   async function createRFQ() {
-    const price = document.getElementById('rfq-price').value.trim();
-    const message = document.getElementById('rfq-message').value.trim();
-    const errorEl = document.getElementById('rfq-error');
-    const submitBtn = document.getElementById('rfq-submit');
+    const price = document.getElementById('bid-price').value.trim();
+    const message = document.getElementById('bid-message').value.trim();
+    const errorEl = document.getElementById('bid-error');
+    const submitBtn = document.getElementById('bid-submit');
 
     errorEl.textContent = '';
 
@@ -419,7 +419,7 @@
     submitBtn.textContent = 'Creating...';
 
     try {
-      const res = await fetch('/api/officer/rfq', {
+      const res = await fetch('/api/officer/bid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rfqId: currentRfqId, price: Number(price), message })
@@ -428,8 +428,8 @@
       if (!res.ok) throw new Error('Failed to create RFQ');
 
       // Reset form fields
-      document.getElementById('rfq-price').value = '';
-      document.getElementById('rfq-message').value = '';
+      document.getElementById('bid-price').value = '';
+      document.getElementById('bid -message').value = '';
 
       // Fetch a fresh RFQ ID for the next submission
       await loadRfqId();
