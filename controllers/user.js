@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/user");
 const Vendor = require("../models/Vendor");
 const OTP = require("../models/OTP");
+const bcrypt = require("bcryptjs");
 const {cloudinary,upload} = require("../cloudConfig")
 const fs = require("fs");
 
@@ -10,11 +11,11 @@ async function handleGetUserSignUp(req,res){
     return res.render("signup");
 }
 
-async function handlePostUserSignup(req, res){
+const handlePostUserSignup = async (req, res) => {
   try {
     const { fullname, email, password, role, otp } = req.body;
 
-    // 🚫 1. Prevent ADMIN signup
+    // 🚫 1. Block direct ADMIN signup
     if (role === "ADMIN") {
       return res.status(403).json({
         message: "Admin cannot signup directly"
@@ -29,38 +30,33 @@ async function handlePostUserSignup(req, res){
       });
     }
 
-    // 🔐 3. Hash password
     let isApproved = false;
-    let vendorId = null;
 
-    // 🏢 4. Vendor flow
-    if (role === "VENDOR") {
-      const vendor = await Vendor.create({
-        name: fullname,
-        email,
-        status: "PENDING"
-      });
-
-      vendorId = vendor._id;
-      isApproved = false; // admin will approve later
-    }
-
-    // 🔐 5. Manager / Officer flow (OTP required)
+    // 🔐 3. OTP validation for privileged roles
     if (["MANAGER", "PROCUREMENT_OFFICER"].includes(role)) {
 
       if (!otp) {
         return res.status(400).json({
-          message: "OTP required for this role"
+          message: "OTP is required for this role"
         });
       }
 
-      const validOTP = await OTP.findOne({
-        email,
-        code: otp,
-        roleRequested: role,
-        isUsed: false,
-        expiresAt: { $gt: new Date() }
-      });
+      const validOTP = await OTP.findOneAndUpdate(
+        {
+          email,
+          code: otp,
+          roleRequested: role,
+          isUsed: false,
+          expiresAt: { $gt: new Date() }
+        },
+        {
+          $set: {
+            isUsed: true,
+            usedAt: new Date()
+          }
+        },
+        { new: true }
+      );
 
       if (!validOTP) {
         return res.status(400).json({
@@ -68,25 +64,28 @@ async function handlePostUserSignup(req, res){
         });
       }
 
-      // mark OTP used
-      validOTP.isUsed = true;
-      validOTP.usedAt = new Date();
-      await validOTP.save();
-
       isApproved = true;
     }
 
-    // 👤 6. Create user
+    // 🔐 4. Hash password using bcrypt
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 👤 5. Create user
     const user = await User.create({
       fullname,
       email,
-      password,
+      password: hashedPassword,
       role,
-      vendorId,
-      isApproved
+      isApproved,
+      vendorId: null
     });
 
-    return res.redirect("/user/login");
+    return res.status(201).json({
+      message: "Signup successful",
+      userId: user._id
+    });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -95,27 +94,72 @@ async function handlePostUserSignup(req, res){
   }
 };
 
+
 async function handleGetUserLogin(req,res){
     return res.render("login");
 }
 
-async function handlePostUserLogin(req,res){
-    const {email,password} = req.body;
-    const token = await User.matchPassword(email,password)
-     if(!token){
-        return res.render("login", {
-            error: "Invalid email or password"
-        });
+const { setToken } = require("../services/auth");
+
+const handlePostUserLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 🔍 1. Find user
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
     }
-    else{
+
+    // 🔐 2. Match password
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(400).render("login",{
+        message: "Invalid email or password"
+      });
+    }
+
+    // 🚫 3. Check active
+    if (!user.isActive) {
+      return res.status(403).json({
+        message: "Account is deactivated"
+      });
+    }
+
+    // ⚠️ 4. Approval check
+    if (
+      ["MANAGER", "PROCUREMENT_OFFICER"].includes(user.role) &&
+      !user.isApproved
+    ) {
+      return res.status(403).json({
+        message: "Account not approved yet"
+      });
+    }
+
+    // 🔐 5. Generate token via service
+    const token = setToken(user);
     res.cookie("uid", token, {
-        httpOnly: true,
+      httpOnly: true,
         secure: false,
         sameSite: "lax",
+    })
+    // 🕒 6. Update last login
+    user.lastLogin = new Date();
+    await user.save();
+
+    return res.status(200).redirect("/vendor");
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error"
     });
-    return res.redirect("/");
-    }
-}
+  }
+};
 
 async function handleGetUserLogout(req,res){
     res.clearCookie("uid", {

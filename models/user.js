@@ -1,7 +1,7 @@
-const {Schema, model} = require("mongoose")
+const mongoose = require("mongoose")
 const {createHmac, randomBytes} = require("crypto");
 const {setToken} = require("../services/auth")
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   fullname: {
     type: String,
     required: true,
@@ -30,7 +30,7 @@ const userSchema = new Schema({
 
   // 🔗 Link vendor users to vendor entity
   vendorId: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Vendor",
     default: null
   },
@@ -49,29 +49,10 @@ const userSchema = new Schema({
 
 }, {timestamps: true});
 
-userSchema.pre("save", async function (){
-    const user = this;
-    if(!user.isModified("password")) return;
-    const password = user.password;
-    const salt = randomBytes(16).toString("hex");
-    const hashed = createHmac("sha256", salt).update(password).digest("hex");
-    user.password = hashed;
-    user.salt = salt;
-})
+const bcrypt = require("bcryptjs");
 
-userSchema.static("matchPassword",async function (username,password){
-    const user = await this.findOne({username});
-    if(!user) return false;
-    const salt = user.salt;
-    const hashed = user.password;
-    const providedHashed = createHmac("sha256", salt).update(password).digest("hex");
-    if(providedHashed === hashed){
-    const token = setToken(user);
-    return token;
-    }
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
-})
-
-const User = model("User", userSchema);
-
-module.exports = User;
+module.exports = mongoose.models.User ||mongoose.model("User", userSchema);

@@ -1,8 +1,17 @@
 const express = require("express");
 const vendorRouter = express.Router();
-const Path = require("path")
+const Path = require("path");
+
+const {
+    handlePostVendorProfile,
+    handlePatchVendorProfile
+} = require("../controllers/vendor");
+
 vendorRouter.get("/profile", (req,res) => {
-    return res.sendFile(Path.resolve(__dirname, "./views/profile.html"));
+    return res.sendFile(Path.resolve(__dirname, "./views/vendor_profile.html"));
 });
 
-vendorRouter.patch("/profile", handlePatch)
+vendorRouter.post("/profile", handlePostVendorProfile);
+vendorRouter.patch("/profile", handlePatchVendorProfile);
+
+module.exports = vendorRouter;
