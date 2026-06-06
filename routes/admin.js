@@ -3,42 +3,46 @@ const router = express.Router();
 
 const {checkAuth, checkRole} = require("../middlewares/auth");
 
-const {
-  getAllVendors,
-  approveVendor,
-  rejectVendor,
-  blockVendor
-} = require("../controllers/admin/vendorController");
+// const {
+//   getAllVendors,
+//   approveVendor,
+//   rejectVendor,
+//   blockVendor
+// } = require("../controllers/admin/vendorController");
 
-const {
-  getOfficers,
-  getManagers,
-  updateApprovalStatus
-} = require("../controllers/admin/staffController");
+// const {
+//   getOfficers,
+//   getManagers,
+//   updateApprovalStatus
+// } = require("../controllers/admin/staffController");
 
-const {
-  getAnalytics
-} = require("../controllers/admin/analyticsController");
+// const {
+//   getAnalytics
+// } = require("../controllers/admin/analyticsController");
 
 // 🔐 Only ADMIN
-router.use(checkAuth(), checkRole("ADMIN"));
+router.use(checkAuth(), checkRole("admin"));
 
-/* ---------- Vendor ---------- */
-router.get("/vendors", getAllVendors);
-router.patch("/vendors/:id/approve", approveVendor);
-router.patch("/vendors/:id/reject", rejectVendor);
-router.patch("/vendors/:id/block", blockVendor);
+router.get('/', async (req,res) => {
+    return res.sendFile(require("path").resolve(__dirname, "../views/admin_pannel.html"))
+})
 
-/* ---------- Officers ---------- */
-router.get("/officers", getOfficers);
+// /* ---------- Vendor ---------- */
+// router.get("/vendors", getAllVendors);
+// router.patch("/vendors/:id/approve", approveVendor);
+// router.patch("/vendors/:id/reject", rejectVendor);
+// router.patch("/vendors/:id/block", blockVendor);
 
-/* ---------- Managers ---------- */
-router.get("/managers", getManagers);
+// /* ---------- Officers ---------- */
+// router.get("/officers", getOfficers);
 
-/* ---------- Approvals ---------- */
-router.patch("/staff/:id/approve", updateApprovalStatus);
+// /* ---------- Managers ---------- */
+// router.get("/managers", getManagers);
 
-/* ---------- Analytics ---------- */
-router.get("/analytics", getAnalytics);
+// /* ---------- Approvals ---------- */
+// router.patch("/staff/:id/approve", updateApprovalStatus);
+
+// /* ---------- Analytics ---------- */
+// router.get("/analytics", getAnalytics);
 
 module.exports = router;
