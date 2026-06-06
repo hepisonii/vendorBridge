@@ -244,14 +244,14 @@
       My Invoices
     </a>
 
-    <a class="sb-item" href="#">
+    <a class="sb-item" href="#" id="sb-vendor-link">
       <span class="sb-icon">
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
           <path d="M18 2l4 4-7 7h-4v-4z"/>
         </svg>
       </span>
-      Edit Profile
+      <span id="sb-vendor-label">Edit Profile</span>
     </a>
 
   </nav>
@@ -287,12 +287,20 @@
     });
   });
 
-  // ── FETCH USER FULL NAME ──
+  // ── FETCH USER & VENDOR STATUS ──
   async function loadUser() {
     try {
-      const res = await fetch('/api/user');  // ← replace with your actual route
-      const user = await res.json();
-      document.getElementById('sb-fullname').textContent = user.fullname || user.username || 'User';
+      const res = await fetch('/api/vendor/me');
+      const data = await res.json();
+      document.getElementById('sb-fullname').textContent = data.fullname || data.username || 'User';
+
+      const vendorLink = document.getElementById('sb-vendor-link');
+      const vendorLabel = document.getElementById('sb-vendor-label');
+      if (data.vendor === true) {
+        vendorLabel.textContent = 'Edit Vendor Profile';
+      } else {
+        vendorLabel.textContent = 'Create Vendor Profile';
+      }
     } catch (err) {
       document.getElementById('sb-fullname').textContent = 'Guest';
     }
