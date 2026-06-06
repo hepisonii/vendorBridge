@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VendoBridge — Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --panel: #13161d;
+      --border: #1f2330;
+      --accent: #c8a96e;
+      --accent-glow: rgba(200,169,110,0.15);
+      --text: #e8e6e0;
+      --muted: #6b6f7c;
+      --input-bg: #191c25;
+      --input-border: #252837;
+      --input-focus: #c8a96e;
+      --error: #e07070;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      padding: 40px 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(200,169,110,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -150px; right: -100px;
+      width: 450px; height: 450px;
+      background: radial-gradient(ellipse, rgba(100,120,200,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 44px 40px;
+      position: relative;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 40px; right: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      border-radius: 0 0 2px 2px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; fill: #0d0f14; }
+    .brand-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    .error-msg {
+      color: var(--error);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      padding: 10px 14px;
+      background: rgba(224,112,112,0.08);
+      border: 1px solid rgba(224,112,112,0.2);
+      border-radius: 8px;
+    }
+
+    form { display: flex; flex-direction: column; gap: 14px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    input, select {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      width: 100%;
+    }
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6f7c' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+    }
+    input::placeholder { color: #3a3e4d; }
+    input:focus, select:focus {
+      border-color: var(--input-focus);
+      background: #1c1f2a;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    select option { background: #191c25; color: var(--text); }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 44px; }
+    .eye-btn {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 4px;
+      color: var(--muted); transition: color 0.2s;
+    }
+    .eye-btn:hover { color: var(--accent); }
+    .eye-btn svg { width: 16px; height: 16px; display: block; }
+
+    /* Collapsible field */
+    .field-hidden {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+      margin-top: 0;
+    }
+    .field-hidden.visible {
+      max-height: 100px;
+      opacity: 1;
+      margin-top: 0;
+    }
+
+    /* Admin warning badge */
+    .admin-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 14px;
+      background: rgba(224,112,112,0.06);
+      border: 1px solid rgba(224,112,112,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .admin-notice.visible {
+      max-height: 80px;
+      opacity: 1;
+    }
+    .admin-notice svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: var(--error); }
+    .admin-notice p { font-size: 0.78rem; color: #c07070; font-weight: 300; line-height: 1.5; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: #0d0f14;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    }
+    .btn-submit:hover { opacity: 0.9; box-shadow: 0 4px 24px rgba(200,169,110,0.3); }
+    .btn-submit:active { transform: scale(0.985); }
+
+    .login-link {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 0.83rem;
+      color: var(--muted);
+    }
+    .login-link a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .login-link a:hover { opacity: 0.75; text-decoration: underline; }
+
+    @media (max-width: 520px) {
+      .card { padding: 36px 22px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8.5v7L12 19.5 5 15.5v-7l7-4.32z"/>
+      </svg>
+    </div>
+    <span class="brand-name">VendoBridge</span>
+  </div>
+
+  <h1>Create your account</h1>
+  <p class="subtitle">Join your team on VendoBridge.</p>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <p class="error-msg"><%= error %></p>
+  <% } %>
+
+  <form action="/user/signup" method="POST" novalidate>
+
+    <div class="field">
+      <label for="fullname">Full Name</label>
+      <input type="text" id="fullname" name="fullname" placeholder="John Doe" autocomplete="name" required />
+    </div>
+
+    <div class="field">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="password-wrap">
+        <input type="password" id="password" name="password" placeholder="Min. 8 characters" autocomplete="new-password" required />
+        <button type="button" class="eye-btn" onclick="togglePass()" aria-label="Toggle password visibility">
+          <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="role">Role</label>
+      <select id="role" name="role" required onchange="handleRoleChange(this.value)">
+        <option value="" disabled selected>Select your role</option>
+        <option value="officer">Officer</option>
+        <option value="manager">Manager</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="invite_code">Invite Code</label>
+      <input type="text" id="invite_code" name="invite_code" placeholder="Enter your invite code" required />
+    </div>
+
+    <!-- Admin secret code — only shown when role = admin -->
+    <div class="field-hidden" id="secret-code-wrap">
+      <div class="field">
+        <label for="secret_code">Secret Admin Code</label>
+        <input type="password" id="secret_code" name="secret_code" placeholder="Enter secret admin code" />
+      </div>
+    </div>
+
+    <!-- Admin notice -->
+    <div class="admin-notice" id="admin-notice">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>Admin accounts require a secret code. Contact your system administrator to obtain one.</p>
+    </div>
+
+    <button type="submit" class="btn-submit">Create Account</button>
+
+  </form>
+
+  <p class="login-link">
+    Already have an account? <a href="/login">Sign in</a>
+  </p>
+
+</div>
+
+<script>
+  function handleRoleChange(role) {
+    const secretWrap = document.getElementById('secret-code-wrap');
+    const secretInput = document.getElementById('secret_code');
+    const adminNotice = document.getElementById('admin-notice');
+
+    if (role === 'admin') {
+      secretWrap.classList.add('visible');
+      adminNotice.classList.add('visible');
+      secretInput.required = true;
+    } else {
+      secretWrap.classList.remove('visible');
+      adminNotice.classList.remove('visible');
+      secretInput.required = false;
+      secretInput.value = '';
+    }
+  }
+
+  function togglePass() {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('eye-icon');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.innerHTML = show
+      ? `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L6.59 6.59m7.532 7.532l3.29 3.29M3 3l18 18"/>`
+      : `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+  }
+</script>
+
+</body>
+</html>
