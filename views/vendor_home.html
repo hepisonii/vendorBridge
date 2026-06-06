@@ -149,6 +149,7 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
+      justify-content: space-between;
       padding: 0 28px;
       z-index: 40;
     }
@@ -158,6 +159,30 @@
       font-weight: 600;
       color: var(--text);
     }
+
+    /* ── ACCOUNT STATUS ── */
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .status-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.07em;
+    }
+    .status-DRAFT    { background: rgba(107,111,124,0.18); color: #9da3b4; }
+    .status-PENDING  { background: rgba(200,169,110,0.15); color: #c8a96e; }
+    .status-APPROVED { background: rgba(61,183,130,0.15);  color: #3db782; }
+    .status-REJECTED { background: rgba(220,80,80,0.15);   color: #e05c5c; }
+    .status-BLOCKED  { background: rgba(220,80,80,0.2);    color: #e05c5c; border: 1px solid rgba(220,80,80,0.3); }
 
     /* ── MAIN ── */
     .main {
@@ -269,6 +294,10 @@
 <!-- ── TOPBAR ── -->
 <header class="topbar">
   <span class="topbar-title">Home</span>
+  <div class="topbar-right">
+    <span class="status-label">Account Status</span>
+    <span class="status-badge status-DRAFT" id="account-status">DRAFT</span>
+  </div>
 </header>
 
 <!-- ── MAIN ── -->
@@ -294,9 +323,9 @@
       const data = await res.json();
       document.getElementById('sb-fullname').textContent = data.fullname || data.username || 'User';
 
-      const vendorLink = document.getElementById('sb-vendor-link');
       const vendorLabel = document.getElementById('sb-vendor-label');
-      if (!!data.vendor) {
+      console.log("Data: ", data.vendor);
+      if (data.vendor === true) {
         vendorLabel.textContent = 'Edit Vendor Profile';
       } else {
         vendorLabel.textContent = 'Create Vendor Profile';
@@ -306,7 +335,24 @@
     }
   }
 
+  // ── FETCH VERIFICATION STATUS ──
+  async function loadVerificationStatus() {
+    try {
+      const res = await fetch('/api/vendor/verification');
+      const data = await res.json();
+      const badge = document.getElementById('account-status');
+      const status = data.status; // DRAFT, PENDING, APPROVED, REJECTED, BLOCKED
+      badge.textContent = status;
+      badge.className = 'status-badge status-' + status;
+    } catch (err) {
+      const badge = document.getElementById('account-status');
+      badge.textContent = 'DRAFT';
+      badge.className = 'status-badge status-DRAFT';
+    }
+  }
+
   loadUser();
+  loadVerificationStatus();
 </script>
 
 </body>
