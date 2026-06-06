@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skill Swap — Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f14; --panel: #13161d; --panel-deep: #0f111a;
+      --border: #1f2330; --accent: #c8a96e;
+      --accent-glow: rgba(200,169,110,0.15); --accent-soft: rgba(200,169,110,0.07);
+      --text: #e8e6e0; --muted: #6b6f7c; --muted-light: #9a9eaa;
+      --input-bg: #191c25; --input-border: #252837; --input-focus: #c8a96e;
+      --error: #e07070; --success: #6ec8a0;
+    }
+    body {
+      min-height: 100vh; background: var(--bg);
+      font-family: 'DM Sans', sans-serif; color: var(--text);
+      padding: 48px 16px 80px; position: relative; overflow-x: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; top: -200px; left: 50%;
+      transform: translateX(-50%); width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(200,169,110,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    body::after {
+      content: ''; position: fixed; bottom: -150px; right: -100px;
+      width: 450px; height: 450px;
+      background: radial-gradient(ellipse, rgba(100,120,200,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* NAV */
+    .nav {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 860px; margin: 0 auto 48px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-icon {
+      width: 34px; height: 34px; background: var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 16px; height: 16px; fill: #0d0f14; }
+    .brand-name { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--accent); letter-spacing: 0.03em; }
+    .nav-btn {
+      padding: 8px 18px; border-radius: 10px; font-size: 0.82rem;
+      font-family: 'DM Sans', sans-serif; font-weight: 500; cursor: pointer;
+      transition: all 0.2s; text-decoration: none; letter-spacing: 0.02em;
+      background: none; border: 1px solid var(--border); color: var(--muted);
+    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* LAYOUT */
+    .page-wrap {
+      max-width: 860px; margin: 0 auto;
+      display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;
+    }
+
+    /* SIDEBAR */
+    .sidebar-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+      overflow: hidden; position: sticky; top: 32px; animation: fadeUp 0.5s ease both;
+    }
+    .sidebar-banner {
+      height: 80px;
+      background: linear-gradient(135deg, rgba(110,168,200,0.18), rgba(100,120,200,0.1));
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-body { padding: 0 24px 28px; margin-top: -36px; }
+    .avatar-wrap {
+      position: relative; width: 72px; margin-bottom: 14px; cursor: pointer;
+    }
+    .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+    .avatar-img {
+      width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--panel); box-shadow: 0 0 0 2px #6ea8c8; display: block;
+    }
+    .avatar-overlay {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    .avatar-overlay svg { width: 20px; height: 20px; color: #fff; }
+    .role-badge {
+      position: absolute; bottom: 2px; right: -4px;
+      padding: 3px 8px; border-radius: 20px;
+      font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+      background: rgba(110,168,200,0.18); color: #6ea8c8; border: 1px solid rgba(110,168,200,0.25);
+    }
+    .profile-name { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .profile-handle { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+    .meta-list { display: flex; flex-direction: column; gap: 10px; }
+    .meta-item { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--muted-light); }
+    .meta-item svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+
+    /* MAIN CARD */
+    .main-card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 20px;
+      overflow: hidden; animation: fadeUp 0.5s 0.1s ease both;
+    }
+    .main-card::before {
+      content: ''; display: block; height: 2px;
+      background: linear-gradient(90deg, transparent, #6ea8c8, transparent);
+    }
+    .card-header {
+      padding: 28px 32px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--text); }
+    .card-header-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; font-weight: 300; }
+    .edit-btn {
+      display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+      background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px;
+      font-size: 0.78rem; font-family: 'DM Sans', sans-serif; color: var(--accent);
+      cursor: pointer; transition: border-color 0.2s, background 0.2s; font-weight: 500;
+    }
+    .edit-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+    .edit-btn svg { width: 13px; height: 13px; }
+    .card-body { padding: 28px 32px 32px; }
+
+    /* FLASH */
+    .flash-msg {
+      margin-bottom: 20px; padding: 12px 16px; border-radius: 10px;
+      font-size: 0.85rem; display: none;
+    }
+    .flash-msg.success { background: rgba(110,200,160,0.1); border: 1px solid rgba(110,200,160,0.2); color: var(--success); display: block; }
+    .flash-msg.error { background: rgba(224,112,112,0.08); border: 1px solid rgba(224,112,112,0.2); color: var(--error); display: block; }
+
+    /* FORM */
+    .form-section-title {
+      font-size: 0.68rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
+    }
+    .fields-grid { display: grid; gap: 16px; margin-bottom: 22px; }
+    .fields-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .fields-grid.cols-1 { grid-template-columns: 1fr; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    label.field-label {
+      font-size: 0.7rem; font-weight: 500; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .field-value {
+      font-size: 0.9rem; color: var(--text); padding: 11px 14px;
+      background: var(--panel-deep); border: 1px solid var(--border);
+      border-radius: 10px; font-weight: 400; letter-spacing: 0.01em;
+    }
+    .field-value.muted { color: var(--muted-light); }
+    input, select, textarea {
+      background: var(--input-bg); border: 1px solid var(--input-border);
+      border-radius: 10px; padding: 12px 14px; font-size: 0.9rem;
+      font-family: 'DM Sans', sans-serif; color: var(--text); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; width: 100%;
+    }
+    input::placeholder { color: #3a3e4d; }
+    input:focus, select:focus {
+      border-color: var(--input-focus); background: #1c1f2a;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    select option { background: var(--input-bg); color: var(--text); }
+
+    /* Avatar upload preview area (edit mode) */
+    .avatar-upload-row {
+      display: none; align-items: center; gap: 16px;
+      padding: 14px; background: var(--input-bg); border: 1px dashed var(--input-border);
+      border-radius: 12px; margin-bottom: 4px;
+    }
+    .avatar-upload-row.visible { display: flex; }
+    .avatar-upload-preview {
+      width: 52px; height: 52px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--border); flex-shrink: 0;
+    }
+    .avatar-upload-info { flex: 1; }
+    .avatar-upload-info p { font-size: 0.78rem; color: var(--muted-light); line-height: 1.5; }
+    .avatar-upload-btn {
+      display: inline-block; margin-top: 6px; padding: 5px 12px;
+      background: var(--accent-soft); border: 1px solid rgba(200,169,110,0.25);
+      border-radius: 7px; font-size: 0.75rem; color: var(--accent);
+      cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500;
+      transition: background 0.2s;
+    }
+    .avatar-upload-btn:hover { background: rgba(200,169,110,0.15); }
+
+    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
+    .save-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+    .btn-cancel {
+      padding: 11px 22px; background: none; border: 1px solid var(--border); border-radius: 11px;
+      font-size: 0.85rem; font-family: 'DM Sans', sans-serif; color: var(--muted);
+      cursor: pointer; font-weight: 500; transition: border-color 0.2s, color 0.2s; display: none;
+    }
+    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+    .btn-save {
+      padding: 11px 28px; background: var(--accent); color: #0d0f14; border: none;
+      border-radius: 11px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+      font-weight: 600; cursor: pointer; letter-spacing: 0.04em;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      position: relative; overflow: hidden; display: none;
+    }
+    .btn-save::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); }
+    .btn-save:hover { opacity: 0.9; box-shadow: 0 4px 20px rgba(200,169,110,0.3); }
+    .btn-save:active { transform: scale(0.985); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 700px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .sidebar-card { position: static; }
+      .fields-grid.cols-2 { grid-template-columns: 1fr; }
+      .card-header { padding: 20px 20px 16px; }
+      .card-body { padding: 20px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <a href="/" class="brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18L19 8.5v7L12 19.5 5 15.5v-7l7-4.32z"/></svg>
+    </div>
+    <span class="brand-name">Skill Swap</span>
+  </a>
+  <a href="/dashboard" class="nav-btn">Dashboard</a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-card">
+    <div class="sidebar-banner"></div>
+    <div class="sidebar-body">
+      <div class="avatar-wrap" id="avatarWrap" onclick="isEditing && triggerFileInput()">
+        <img class="avatar-img" id="sidebarAvatar" src="" alt="Profile Photo" />
+        <div class="avatar-overlay" id="avatarOverlay" style="display:none">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <span class="role-badge" id="roleBadge">Learner</span>
+      </div>
+      <p class="profile-name" id="sidebarName">—</p>
+      <p class="profile-handle" id="sidebarHandle">@—</p>
+      <div class="meta-list">
+        <div class="meta-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span id="sidebarAgGender">—</span>
+        </div>
+        <div class="meta-item">
+          <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          <span id="sidebarEmail">—</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CARD -->
+  <main class="main-card">
+    <div class="card-header">
+      <div>
+        <p class="card-header-title" id="cardTitle">Your Profile</p>
+        <p class="card-header-sub" id="cardSub">View and manage your account details</p>
+      </div>
+      <button class="edit-btn" id="editToggleBtn" type="button" onclick="toggleEdit()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Edit Profile
+      </button>
+    </div>
+
+    <div class="card-body">
+
+      <!-- JS flash -->
+      <div id="jsFlash" class="flash-msg"></div>
+
+      <form id="profileForm" novalidate>
+
+        <!-- Profile Image (edit mode only) -->
+        <div class="avatar-upload-row" id="avatarUploadRow">
+          <img class="avatar-upload-preview" id="uploadPreview" src="" alt="Preview" />
+          <div class="avatar-upload-info">
+            <p>Change your profile photo</p>
+            <label class="avatar-upload-btn" for="profileImage">Choose image</label>
+            <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display:none" onchange="previewImage(this)" />
+          </div>
+        </div>
+
+        <!-- Account Info -->
+        <p class="form-section-title">Account Info</p>
+        <div class="fields-grid cols-2">
+
+          <div class="field">
+            <label class="field-label" for="fullname">Full Name</label>
+            <div class="field-value view-mode" id="view-fullname">—</div>
+            <input type="text" id="fullname" name="fullname" class="edit-mode" style="display:none" placeholder="Your full name" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="username">Username</label>
+            <div class="field-value muted view-mode" id="view-username">—</div>
+            <input type="text" id="username" name="username" class="edit-mode" style="display:none" placeholder="username" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="email">Email</label>
+            <div class="field-value muted view-mode" id="view-email">—</div>
+            <input type="email" id="email" name="email" class="edit-mode" style="display:none" placeholder="you@example.com" />
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="age">Age</label>
+            <div class="field-value view-mode" id="view-age">—</div>
+            <input type="number" id="age" name="age" class="edit-mode" style="display:none" min="13" max="100" placeholder="Age" />
+          </div>
+
+          <div class="field" style="grid-column: 1 / -1;">
+            <label class="field-label" for="gender">Gender</label>
+            <div class="field-value view-mode" id="view-gender">—</div>
+            <select id="gender" name="gender" class="edit-mode" style="display:none">
+              <option value="" disabled selected>Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Non-binary">Non-binary</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="save-row">
+          <button type="button" class="btn-cancel" id="cancelBtn" onclick="cancelEdit()">Cancel</button>
+          <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  let isEditing = false;
+
+  async function loadUser() {
+    try {
+      const res = await fetch('/api/user');
+      if (!res.ok) return;
+      const u = await res.json();
+      // Sidebar
+      const avatarSrc = u.profileImageURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.fullname || 'User')}&background=191c25&color=6ea8c8&size=72`;
+      document.getElementById('sidebarAvatar').src = avatarSrc;
+      document.getElementById('uploadPreview').src  = avatarSrc;
+      if (u.fullname)  document.getElementById('sidebarName').textContent      = u.fullname;
+      if (u.username)  document.getElementById('sidebarHandle').textContent    = '@' + u.username;
+      if (u.email)     document.getElementById('sidebarEmail').textContent     = u.email;
+      if (u.role)      document.getElementById('roleBadge').textContent        = u.role;
+      document.getElementById('sidebarAgGender').textContent =
+        (u.age || '') + (u.age && u.gender ? ' · ' : '') + (u.gender || '');
+
+      // View mode divs
+      if (u.fullname)  document.getElementById('view-fullname').textContent  = u.fullname;
+      if (u.username)  document.getElementById('view-username').textContent  = '@' + u.username;
+      if (u.email)     document.getElementById('view-email').textContent     = u.email;
+      if (u.age)       document.getElementById('view-age').textContent       = u.age;
+      if (u.gender)    document.getElementById('view-gender').textContent    = u.gender;
+
+      // Input fields
+      if (u.fullname)  document.getElementById('fullname').value  = u.fullname;
+      if (u.username)  document.getElementById('username').value  = u.username;
+      if (u.email)     document.getElementById('email').value     = u.email;
+      if (u.age)       document.getElementById('age').value       = u.age;
+      if (u.gender)    document.getElementById('gender').value    = u.gender;
+
+    } catch (e) {
+      console.error('Failed to load user from /api/user', e);
+    }
+  }
+
+  loadUser();
+
+  function toggleEdit() {
+    isEditing = !isEditing;
+
+    document.querySelectorAll('.view-mode').forEach(el => el.style.display = isEditing ? 'none' : '');
+    document.querySelectorAll('.edit-mode').forEach(el => el.style.display = isEditing ? '' : 'none');
+
+    document.getElementById('avatarUploadRow').classList.toggle('visible', isEditing);
+    document.getElementById('avatarOverlay').style.display = isEditing ? 'flex' : 'none';
+    document.getElementById('avatarWrap').style.cursor = isEditing ? 'pointer' : 'default';
+
+    const editBtn = document.getElementById('editToggleBtn');
+    document.getElementById('cardTitle').textContent = isEditing ? 'Edit Profile' : 'Your Profile';
+    document.getElementById('cardSub').textContent   = isEditing ? 'Update your account details below' : 'View and manage your account details';
+
+    editBtn.innerHTML = isEditing
+      ? `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Viewing`
+      : `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit Profile`;
+
+    document.getElementById('saveBtn').style.display   = isEditing ? 'block' : 'none';
+    document.getElementById('cancelBtn').style.display = isEditing ? 'block' : 'none';
+  }
+
+  function cancelEdit() { if (isEditing) toggleEdit(); }
+
+  function triggerFileInput() {
+    if (isEditing) document.getElementById('profileImage').click();
+  }
+
+  function previewImage(input) {
+    if (!input.files || !input.files[0]) return;
+    const url = URL.createObjectURL(input.files[0]);
+    document.getElementById('sidebarAvatar').src = url;
+    document.getElementById('uploadPreview').src  = url;
+  }
+
+  document.getElementById('profileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const val = id => document.getElementById(id).value.trim();
+    const fullname = val('fullname');
+    const username = val('username');
+    const email    = val('email');
+    const age      = val('age');
+    const gender   = val('gender');
+
+    const formData = new FormData();
+    formData.append('fullname', fullname);
+    formData.append('username', username);
+    formData.append('email', email);
+    formData.append('age', age);
+    formData.append('gender', gender);
+
+    const imageInput = document.getElementById('profileImage');
+    if (imageInput.files && imageInput.files[0]) {
+      formData.append('profileImage', imageInput.files[0]);
+    }
+
+    const flash = document.getElementById('jsFlash');
+
+    try {
+      const res = await fetch('/user/profile', {
+        method: 'PATCH',
+        body: formData
+      });
+
+      if (res.ok) {
+        if (fullname) {
+          document.getElementById('sidebarName').textContent  = fullname;
+          document.getElementById('view-fullname').textContent = fullname;
+        }
+        if (username) {
+          document.getElementById('sidebarHandle').textContent = '@' + username;
+          document.getElementById('view-username').textContent  = '@' + username;
+        }
+        if (email) {
+          document.getElementById('sidebarEmail').textContent = email;
+          document.getElementById('view-email').textContent   = email;
+        }
+        if (age) document.getElementById('view-age').textContent = age;
+        if (gender) document.getElementById('view-gender').textContent = gender;
+        if (age || gender)
+          document.getElementById('sidebarAgGender').textContent = age + (age && gender ? ' · ' : '') + gender;
+
+        flash.className = 'flash-msg success';
+        flash.textContent = 'Profile updated successfully!';
+        cancelEdit();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        flash.className = 'flash-msg error';
+        flash.textContent = data.message || 'Something went wrong. Please try again.';
+      }
+
+      flash.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } catch (err) {
+      flash.className = 'flash-msg error';
+      flash.textContent = 'Network error. Please try again.';
+    }
+  });
+</script>
+</body>
+</html>
